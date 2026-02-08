@@ -5,31 +5,21 @@ import {
   InvalidRateError,
 } from './errors.js';
 
-export enum RENTAL_STATUS {
-  'IN_RENT',
-  'AVAILABLE',
-}
-
 export class Car {
   private readonly id: string;
   private readonly model: string;
   private dailyRate: number;
-  private rentalStatus: RENTAL_STATUS;
+  private inRent: boolean;
 
-  constructor(
-    id: string,
-    model: string,
-    dailyRate: number,
-    rentalStatus = RENTAL_STATUS.AVAILABLE
-  ) {
+  constructor(id: string, model: string, dailyRate: number) {
     this.id = id;
     this.model = model;
     this.dailyRate = dailyRate;
-    this.rentalStatus = rentalStatus;
+    this.inRent = false;
   }
 
   private isInRent() {
-    return this.rentalStatus === RENTAL_STATUS.IN_RENT;
+    return this.inRent;
   }
 
   private isRateValid(dailyRate: number) {
@@ -41,7 +31,7 @@ export class Car {
   }
 
   public isAvailable() {
-    return this.rentalStatus === RENTAL_STATUS.AVAILABLE;
+    return !this.isInRent();
   }
 
   public setDailyRate(dailyRate: number) {
@@ -78,16 +68,16 @@ export class Car {
     }
 
     const totalCost = this.calculateCost(startDate, endDate);
-    this.rentalStatus = RENTAL_STATUS.IN_RENT;
+    this.inRent = true;
 
     return totalCost;
   }
 
   public return() {
     if (!this.isInRent()) {
-        throw new CarNotRentedError();
+      throw new CarNotRentedError();
     }
 
-    this.rentalStatus = RENTAL_STATUS.AVAILABLE;
+    this.inRent = false;
   }
 }
